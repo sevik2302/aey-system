@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AEY SYSTEM</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="bg"></div>
+
+<div class="container">
+
+  <div class="small">SYSTEM ACTIVE</div>
+  <div class="title">PHASE 0</div>
+
+  <div id="me"></div>
+  <div id="world"></div>
+  <div id="ai"></div>
+
+  <div class="btn" id="find">FIND SIGNAL</div>
+
+  <a href="claim.html">
+    <div class="btn">CLAIM</div>
+  </a>
+
+</div>
+
+<script type="module">
+import { addFragment, getMe, getWorld } from "./game.js";
+
+const meEl = document.getElementById("me");
+const worldEl = document.getElementById("world");
+const aiEl = document.getElementById("ai");
+
+document.getElementById("find").onclick = async () => {
+  const f = await addFragment();
+  meEl.innerText = "fragments: " + f;
+};
+
+async function update(){
+  const me = await getMe();
+  const world = await getWorld();
+
+  meEl.innerText = "fragments: " + (me?.fragments || 0);
+  worldEl.innerText = "players: " + world.length;
+
+  const msgs = [
+    "SYSTEM: anomaly detected",
+    "SYSTEM: AEY signal unstable",
+    "SYSTEM: user pattern matched",
+    "SYSTEM: phase pending"
+  ];
+
+  aiEl.innerText = msgs[Math.floor(Math.random()*msgs.length)];
+}
+
+setInterval(update, 3000);
+update();
+</script>
+
+</body>
+</html>
