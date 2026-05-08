@@ -9,7 +9,6 @@
 <div class="bg"></div>
 
 <div class="container">
-
   <div class="small">SYSTEM ACTIVE</div>
   <div class="title">PHASE 0</div>
 
@@ -22,27 +21,40 @@
   <a href="claim.html">
     <div class="btn">CLAIM</div>
   </a>
-
 </div>
 
-<script type="module">
-import { addFragment, getMe, getWorld } from "./game.js";
+<script src="config.js"></script>
+<script src="supabase.js"></script>
+<script src="game.js"></script>
 
-const meEl = document.getElementById("me");
-const worldEl = document.getElementById("world");
-const aiEl = document.getElementById("ai");
+<script>
+let AEY_READY = false;
+
+setTimeout(async () => {
+  AEY_READY = true;
+  await window.AEY.init();
+}, 800);
 
 document.getElementById("find").onclick = async () => {
-  const f = await addFragment();
-  meEl.innerText = "fragments: " + f;
+  if (!AEY_READY) return;
+
+  const f = await window.AEY.addFragment();
+
+  document.getElementById("me").innerText =
+    "fragments: " + f;
 };
 
-async function update(){
-  const me = await getMe();
-  const world = await getWorld();
+async function update() {
+  if (!AEY_READY) return;
 
-  meEl.innerText = "fragments: " + (me?.fragments || 0);
-  worldEl.innerText = "players: " + world.length;
+  const me = await window.AEY.getMe();
+  const world = await window.AEY.getWorld();
+
+  document.getElementById("me").innerText =
+    "fragments: " + (me?.fragments || 0);
+
+  document.getElementById("world").innerText =
+    "players: " + world.length;
 
   const msgs = [
     "SYSTEM: anomaly detected",
@@ -51,7 +63,8 @@ async function update(){
     "SYSTEM: phase pending"
   ];
 
-  aiEl.innerText = msgs[Math.floor(Math.random()*msgs.length)];
+  document.getElementById("ai").innerText =
+    msgs[Math.floor(Math.random() * msgs.length)];
 }
 
 setInterval(update, 3000);
