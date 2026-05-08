@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CLAIM AEY</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="bg"></div>
+
+<div class="container">
+
+  <div class="small">CLAIM SYSTEM</div>
+  <div class="title">WALLET</div>
+
+  <button class="btn" id="connect">CONNECT PHANTOM</button>
+
+  <div id="info"></div>
+
+  <button class="btn" id="claim">CLAIM TOKENS</button>
+
+</div>
+
+<script type="module">
+import { CONFIG } from "./config.js";
+import { getMe } from "./game.js";
+
+let wallet = null;
+
+document.getElementById("connect").onclick = async () => {
+  if(window.solana){
+    const res = await window.solana.connect();
+    wallet = res.publicKey.toString();
+
+    document.getElementById("info").innerText =
+      "wallet: " + wallet;
+  } else {
+    alert("Install Phantom Wallet");
+  }
+};
+
+document.getElementById("claim").onclick = async () => {
+
+  const me = await getMe();
+  const f = me.fragments || 0;
+
+  if(f < CONFIG.MIN_CLAIM){
+    alert("not enough fragments");
+    return;
+  }
+
+  const tokens = f * CONFIG.FRAGMENTS_TO_TOKEN;
+
+  alert(
+    "CLAIM READY\n\n" +
+    "token: " + tokens + " " + CONFIG.PROJECT_NAME + "\n" +
+    "wallet: " + wallet + "\n\n" +
+    "next step: airdrop execution via backend"
+  );
+};
+</script>
+
+</body>
+</html>
