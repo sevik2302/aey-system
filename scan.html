@@ -3,35 +3,36 @@
 <head>
   <title>SCAN</title>
   <link rel="stylesheet" href="style.css">
-
-  <script type="module">
-    import { init } from "./game.js";
-    init();
-  </script>
 </head>
 <body>
 
 <div class="bg"></div>
 
 <div class="container">
-
   <div class="small">SCANNING</div>
   <div class="title" id="p">0%</div>
 
   <a href="game.html">
     <div class="btn">FORCE ENTRY</div>
   </a>
-
 </div>
 
+<script src="config.js"></script>
+<script src="supabase.js"></script>
+<script src="game.js"></script>
+
 <script>
-let i=0;
-setInterval(()=>{
-  if(i<100){
+setTimeout(() => {
+  window.AEY.init();
+}, 1000);
+
+let i = 0;
+setInterval(() => {
+  if (i < 100) {
     i++;
-    document.getElementById("p").innerText=i+"%";
+    document.getElementById("p").innerText = i + "%";
   }
-},20);
+}, 20);
 </script>
 
 </body>
