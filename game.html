@@ -1,163 +1,53 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>AEY SYSTEM</title>
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Supabase CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-
-<body>
-
-<div class="bg"></div>
-
-<div class="container">
-  <div class="small">SYSTEM ACTIVE</div>
-  <div class="title">PHASE 0</div>
-
-  <div id="me">fragments: 0</div>
-  <div id="world">players: 0</div>
-  <div id="ai"></div>
-
-  <button class="btn" id="find">FIND SIGNAL</button>
-  <a href="claim.html"><div class="btn">CLAIM</div></a>
-</div>
-
-<script src="config.js"></script>
-<script src="supabase.js"></script>
-
 <script>
-/* =========================
-   1. SAFETY CHECK
-========================= */
+let AEY_READY = false;
 
-if (!window.supabase) {
-  alert("Supabase SDK not loaded");
-}
+/* init */
+setTimeout(async () => {
+  AEY_READY = true;
+  await window.AEY.init();
 
-/* =========================
-   2. CLIENT INIT (ЖЁСТКО)
-========================= */
+  /* 🔥 ВКЛЮЧАЕМ REALTIME */
+  window.AEY.enableRealtime(update);
+}, 800);
 
-const client = window.supabase.createClient(
-  window.SUPABASE_URL,
-  window.SUPABASE_KEY
-);
+/* CLICK */
+document.getElementById("find").onclick = async () => {
+  if (!AEY_READY) return;
 
-/* =========================
-   3. PLAYER ID
-========================= */
+  const f = await window.AEY.addFragment();
 
-let id = localStorage.getItem("aey_id");
+  if (f === "cooldown") {
+    document.getElementById("ai").innerText =
+      "SYSTEM: cooldown active";
+    return;
+  }
 
-if (!id) {
-  id = "u_" + Math.random().toString(36).slice(2, 10);
-  localStorage.setItem("aey_id", id);
-}
+  update();
+};
 
-/* =========================
-   4. INIT PLAYER
-========================= */
+/* 🔥 UI UPDATE */
+async function update() {
+  if (!AEY_READY) return;
 
-async function init() {
-  await client.from("players").upsert({
-    id,
-    fragments: 0,
-    phase: 0
-  });
-}
+  const me = await window.AEY.getMe();
+  const world = await window.AEY.getWorld();
 
-init();
-
-/* =========================
-   5. CORE
-========================= */
-
-async function addFragment() {
-  const { data } = await client
-    .from("players")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  const f = (data?.fragments || 0) + 1;
-
-  await client
-    .from("players")
-    .update({ fragments: f })
-    .eq("id", id);
-
-  return f;
-}
-
-async function getMe() {
-  const { data } = await client
-    .from("players")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  return data || { fragments: 0 };
-}
-
-async function getWorld() {
-  const { data } = await client
-    .from("players")
-    .select("*");
-
-  return data || [];
-}
-
-/* =========================
-   6. UI RENDER
-========================= */
-
-function render(me, world) {
   document.getElementById("me").innerText =
     "fragments: " + (me?.fragments || 0);
 
   document.getElementById("world").innerText =
-    "players: " + (world?.length || 0);
-}
-
-/* =========================
-   7. LIVE LOOP
-========================= */
-
-async function loop() {
-  const me = await getMe();
-  const world = await getWorld();
-
-  render(me, world);
-}
-
-setInterval(loop, 2000);
-loop();
-
-/* =========================
-   8. BUTTON FIX
-========================= */
-
-document.getElementById("find").onclick = async () => {
-  const f = await addFragment();
-  const me = await getMe();
-  const world = await getWorld();
-
-  render(me, world);
+    "players: " + world.length;
 
   const msgs = [
     "SYSTEM: anomaly detected",
     "SYSTEM: AEY signal unstable",
-    "SYSTEM: pattern match",
-    "SYSTEM: phase shifting"
+    "SYSTEM: user pattern matched",
+    "SYSTEM: phase pending"
   ];
 
   document.getElementById("ai").innerText =
     msgs[Math.floor(Math.random() * msgs.length)];
-};
+}
 
+update();
 </script>
-
-</body>
-</html>
