@@ -6,7 +6,9 @@ if (!id) {
   localStorage.setItem("aey_id", id);
 }
 
-/* 🟢 SUPABASE INIT */
+/* =========================
+   SAFE SUPABASE INIT
+========================= */
 function initSupabase() {
   if (window.SUPABASE_URL && window.SUPABASE_KEY && window.supabase) {
     sb = window.supabase.createClient(
@@ -16,18 +18,25 @@ function initSupabase() {
   }
 }
 
-/* 🧠 COOLDOWN SYSTEM (АНТИ-НАКРУТКА) */
-let lastClick = 0;
-const COOLDOWN = 1200; // 1.2 сек
-
-function canClick() {
-  const now = Date.now();
-  if (now - lastClick < COOLDOWN) return false;
-  lastClick = now;
-  return true;
+/* =========================
+   WAIT UNTIL READY
+========================= */
+function waitForReady() {
+  return new Promise((resolve) => {
+    const check = () => {
+      if (window.supabase && window.SUPABASE_URL && window.SUPABASE_KEY) {
+        resolve();
+      } else {
+        setTimeout(check, 50);
+      }
+    };
+    check();
+  });
 }
 
-/* 🟢 INIT PLAYER */
+/* =========================
+   INIT PLAYER
+========================= */
 async function init() {
   if (!sb) return;
 
@@ -38,7 +47,22 @@ async function init() {
   });
 }
 
-/* 🔥 MAIN ACTION */
+/* =========================
+   ANTI-SPAM CLICK
+========================= */
+let lastClick = 0;
+const COOLDOWN = 1000;
+
+function canClick() {
+  const now = Date.now();
+  if (now - lastClick < COOLDOWN) return false;
+  lastClick = now;
+  return true;
+}
+
+/* =========================
+   ADD FRAGMENT
+========================= */
 async function addFragment() {
   if (!sb) return 0;
   if (!canClick()) return "cooldown";
@@ -51,14 +75,17 @@ async function addFragment() {
 
   let f = (data?.fragments || 0) + 1;
 
-  await sb.from("players")
+  await sb
+    .from("players")
     .update({ fragments: f })
     .eq("id", id);
 
   return f;
 }
 
-/* 🟢 GET PLAYER */
+/* =========================
+   GET PLAYER
+========================= */
 async function getMe() {
   if (!sb) return { fragments: 0 };
 
@@ -71,7 +98,9 @@ async function getMe() {
   return data || { fragments: 0 };
 }
 
-/* 🟢 WORLD */
+/* =========================
+   GET WORLD
+========================= */
 async function getWorld() {
   if (!sb) return [];
 
@@ -79,7 +108,9 @@ async function getWorld() {
   return data || [];
 }
 
-/* 🔥 REALTIME SUBSCRIPTION */
+/* =========================
+   REALTIME
+========================= */
 function enableRealtime(callback) {
   if (!sb) return;
 
@@ -92,23 +123,29 @@ function enableRealtime(callback) {
         table: "players"
       },
       () => {
-        callback(); // обновляем UI
+        callback();
       }
     )
     .subscribe();
 }
 
-/* 🌍 GLOBAL API */
+/* =========================
+   BOOT SEQUENCE (IMPORTANT)
+========================= */
+async function boot() {
+  await waitForReady();
+  initSupabase();
+  await init();
+}
+
+/* =========================
+   EXPORT API
+========================= */
 window.AEY = {
+  boot,
   init,
   addFragment,
   getMe,
   getWorld,
   enableRealtime
 };
-
-/* 🚀 BOOT */
-setTimeout(() => {
-  initSupabase();
-  init();
-}, 500);
