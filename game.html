@@ -3,27 +3,21 @@
 <head>
   <title>AEY SYSTEM</title>
   <link rel="stylesheet" href="style.css">
-
-  <!-- 🟢 ДОБАВЛЕНО -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body>
 
+<body>
 <div class="bg"></div>
 
 <div class="container">
   <div class="small">SYSTEM ACTIVE</div>
   <div class="title">PHASE 0</div>
 
-  <div id="me"></div>
-  <div id="world"></div>
+  <div id="me">fragments: 0</div>
+  <div id="world">players: 0</div>
   <div id="ai"></div>
 
   <div class="btn" id="find">FIND SIGNAL</div>
-
-  <a href="claim.html">
-    <div class="btn">CLAIM</div>
-  </a>
+  <a href="claim.html"><div class="btn">CLAIM</div></a>
 </div>
 
 <script src="config.js"></script>
@@ -31,35 +25,61 @@
 <script src="game.js"></script>
 
 <script>
-let AEY_READY = false;
+let sbReady = false;
+let lastState = null;
 
-/* 🟡 ИЗМЕНЕНО: безопасный init */
-setTimeout(async () => {
-  AEY_READY = true;
+// =========================
+// 1. INIT SAFE
+// =========================
+(async () => {
   await window.AEY.init();
-}, 800);
+  sbReady = true;
+  await refresh();
+})();
 
-/* 🟡 БЕЗ ИЗМЕНЕНИЙ (логика ок) */
-document.getElementById("find").onclick = async () => {
-  if (!AEY_READY) return;
-  const f = await window.AEY.addFragment();
+// =========================
+// 2. UI RENDER FUNCTION
+// =========================
+function render(me, world) {
   document.getElementById("me").innerText =
-    "fragments: " + f;
-};
+    "fragments: " + (me?.fragments ?? 0);
 
-/* 🟡 ИЗМЕНЕНИЙ НЕТ (UI логика норм) */
-async function update() {
-  if (!AEY_READY) return;
+  document.getElementById("world").innerText =
+    "players: " + (world?.length ?? 0);
+}
+
+// =========================
+// 3. LIVE REFRESH LOOP
+// =========================
+async function refresh() {
+  if (!sbReady) return;
 
   const me = await window.AEY.getMe();
   const world = await window.AEY.getWorld();
 
-  document.getElementById("me").innerText =
-    "fragments: " + (me?.fragments || 0);
+  render(me, world);
+  lastState = me;
+}
 
-  document.getElementById("world").innerText =
-    "players: " + world.length;
+// каждые 2 секунды синк
+setInterval(refresh, 2000);
 
+// =========================
+// 4. CLICK HANDLER (FIXED)
+// =========================
+document.getElementById("find").onclick = async () => {
+  if (!sbReady) return;
+
+  // сразу обновляем в базе
+  await window.AEY.addFragment();
+
+  // сразу получаем новое состояние
+  const me = await window.AEY.getMe();
+
+  // мгновенно рендерим без refresh страницы
+  render(me, await window.AEY.getWorld());
+
+  // AI эффект (без задержек)
   const msgs = [
     "SYSTEM: anomaly detected",
     "SYSTEM: AEY signal unstable",
@@ -69,10 +89,23 @@ async function update() {
 
   document.getElementById("ai").innerText =
     msgs[Math.floor(Math.random() * msgs.length)];
-}
+};
 
-setInterval(update, 3000);
-update();
+// =========================
+// 5. AI LOOP (визуальный эффект)
+// =========================
+setInterval(() => {
+  const msgs = [
+    "SYSTEM: scanning neural pattern",
+    "SYSTEM: anomaly stable",
+    "SYSTEM: quantum sync active",
+    "SYSTEM: AEY node responding"
+  ];
+
+  document.getElementById("ai").innerText =
+    msgs[Math.floor(Math.random() * msgs.length)];
+}, 4000);
+
 </script>
 
 </body>
