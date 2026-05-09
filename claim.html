@@ -3,6 +3,9 @@
 <head>
   <title>CLAIM AEY</title>
   <link rel="stylesheet" href="style.css">
+
+  <!-- 🟢 ДОБАВЛЕНО -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -25,6 +28,7 @@
 <script>
 let wallet = null;
 
+/* 🟡 БЕЗ ИЗМЕНЕНИЙ */
 document.getElementById("connect").onclick = async () => {
   if (window.solana) {
     const res = await window.solana.connect();
@@ -37,9 +41,9 @@ document.getElementById("connect").onclick = async () => {
   }
 };
 
+/* 🟡 БЕЗ ИЗМЕНЕНИЙ */
 document.getElementById("claim").onclick = async () => {
   const me = await window.AEY.getMe();
-
   const f = me?.fragments || 0;
 
   if (f < window.CONFIG.MIN_CLAIM) {
@@ -51,7 +55,7 @@ document.getElementById("claim").onclick = async () => {
 
   alert(
     "CLAIM READY\n\n" +
-    "token: " + tokens + " " + window.CONFIG.PROJECT_NAME + "\n" +
+    "token: " + tokens + "\n" +
     "wallet: " + wallet
   );
 };
