@@ -6,6 +6,85 @@
 
   <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- 🖤 ДОПОЛНИТЕЛЬНЫЙ ВИЗУАЛ -->
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    /* фон-слой */
+    .bg {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #111 0%, #000 70%);
+      opacity: 0.9;
+      z-index: 0;
+    }
+
+    /* контейнер поверх */
+    .container {
+      position: relative;
+      z-index: 2;
+      animation: appear 0.8s ease both;
+    }
+
+    /* плавное появление */
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+        filter: blur(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    /* текстовые элементы */
+    .small {
+      opacity: 0.4;
+      letter-spacing: 3px;
+    }
+
+    .title {
+      letter-spacing: 12px;
+      text-shadow: 0 0 20px rgba(255,255,255,0.08);
+    }
+
+    /* кнопки */
+    .btn {
+      margin-top: 15px;
+      padding: 12px 26px;
+      border: 1px solid rgba(255,255,255,0.3);
+      cursor: pointer;
+      transition: 0.25s ease;
+      user-select: none;
+    }
+
+    .btn:hover {
+      transform: scale(1.04);
+      background: #fff;
+      color: #000;
+    }
+
+    /* лёгкий “живой” эффект */
+    #ai {
+      opacity: 0.6;
+      margin-top: 10px;
+      font-size: 12px;
+      letter-spacing: 2px;
+    }
+
+    #me, #world {
+      opacity: 0.8;
+      margin-top: 5px;
+    }
+  </style>
 </head>
 
 <body>
@@ -36,7 +115,7 @@
 let READY = false;
 
 /* =========================
-   SAFE START (NO WHITE SCREEN)
+   SAFE START
 ========================= */
 async function start() {
   try {
@@ -54,10 +133,18 @@ async function start() {
 }
 
 /* =========================
-   CLICK
+   CLICK EFFECT (мягкий отклик)
 ========================= */
 document.getElementById("find").onclick = async () => {
   if (!READY) return;
+
+  const btn = document.getElementById("find");
+
+  /* микро-анимация клика */
+  btn.style.transform = "scale(0.97)";
+  setTimeout(() => {
+    btn.style.transform = "scale(1)";
+  }, 120);
 
   const f = await window.AEY.addFragment();
 
@@ -97,7 +184,7 @@ async function update() {
 }
 
 /* =========================
-   BOOT GAME
+   BOOT
 ========================= */
 start();
 </script>
