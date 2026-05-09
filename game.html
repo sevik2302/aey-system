@@ -4,10 +4,9 @@
   <title>AEY SYSTEM</title>
   <link rel="stylesheet" href="style.css">
 
-  <!-- Supabase SDK -->
+  <!-- 🟢 ДОБАВЛЕНО -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
 <body>
 
 <div class="bg"></div>
@@ -16,12 +15,15 @@
   <div class="small">SYSTEM ACTIVE</div>
   <div class="title">PHASE 0</div>
 
-  <div id="me">fragments: 0</div>
-  <div id="world">players: 0</div>
+  <div id="me"></div>
+  <div id="world"></div>
   <div id="ai"></div>
 
   <div class="btn" id="find">FIND SIGNAL</div>
-  <a href="claim.html"><div class="btn">CLAIM</div></a>
+
+  <a href="claim.html">
+    <div class="btn">CLAIM</div>
+  </a>
 </div>
 
 <script src="config.js"></script>
@@ -29,147 +31,35 @@
 <script src="game.js"></script>
 
 <script>
-/* =========================
-   1. INIT SAFE (БЕЗ AEY_READY)
-========================= */
+let AEY_READY = false;
 
-let sbReady = false;
-let sb = null;
-let id = localStorage.getItem("aey_id");
+/* 🟡 ИЗМЕНЕНО: безопасный init */
+setTimeout(async () => {
+  AEY_READY = true;
+  await window.AEY.init();
+}, 800);
 
-if (!id) {
-  id = "u_" + Math.random().toString(36).slice(2, 10);
-  localStorage.setItem("aey_id", id);
-}
+/* 🟡 БЕЗ ИЗМЕНЕНИЙ (логика ок) */
+document.getElementById("find").onclick = async () => {
+  if (!AEY_READY) return;
+  const f = await window.AEY.addFragment();
+  document.getElementById("me").innerText =
+    "fragments: " + f;
+};
 
-/* =========================
-   2. SUPABASE INIT
-========================= */
-function initSupabase() {
-  if (!window.supabase) {
-    console.error("Supabase SDK missing");
-    return;
-  }
+/* 🟡 ИЗМЕНЕНИЙ НЕТ (UI логика норм) */
+async function update() {
+  if (!AEY_READY) return;
 
-  sb = window.supabase.createClient(
-    window.SUPABASE_URL,
-    window.SUPABASE_KEY
-  );
+  const me = await window.AEY.getMe();
+  const world = await window.AEY.getWorld();
 
-  sbReady = true;
-  console.log("Supabase ready");
-}
-
-/* =========================
-   3. PLAYER INIT
-========================= */
-async function initPlayer() {
-  if (!sbReady) return;
-
-  await sb.from("players").upsert({
-    id,
-    fragments: 0,
-    phase: 0
-  });
-}
-
-/* =========================
-   4. CORE FUNCTIONS
-========================= */
-async function addFragment() {
-  if (!sbReady) return 0;
-
-  const { data } = await sb
-    .from("players")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  let f = (data?.fragments || 0) + 1;
-
-  await sb
-    .from("players")
-    .update({ fragments: f })
-    .eq("id", id);
-
-  return f;
-}
-
-async function getMe() {
-  if (!sbReady) return { fragments: 0 };
-
-  const { data } = await sb
-    .from("players")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  return data || { fragments: 0 };
-}
-
-async function getWorld() {
-  if (!sbReady) return [];
-
-  const { data } = await sb
-    .from("players")
-    .select("*");
-
-  return data || [];
-}
-
-/* =========================
-   5. RENDER
-========================= */
-function render(me, world) {
   document.getElementById("me").innerText =
     "fragments: " + (me?.fragments || 0);
 
   document.getElementById("world").innerText =
-    "players: " + (world?.length || 0);
-}
+    "players: " + world.length;
 
-/* =========================
-   6. LIVE SYNC LOOP
-========================= */
-async function refresh() {
-  if (!sbReady) return;
-
-  const me = await getMe();
-  const world = await getWorld();
-
-  render(me, world);
-}
-
-setInterval(refresh, 2000);
-
-/* =========================
-   7. INIT SEQUENCE
-========================= */
-(async () => {
-  initSupabase();
-
-  setTimeout(async () => {
-    await initPlayer();
-    refresh();
-  }, 800);
-})();
-
-/* =========================
-   8. FIND SIGNAL (FIXED)
-========================= */
-document.getElementById("find").onclick = async () => {
-  if (!sbReady) return;
-
-  // 1. update DB
-  await addFragment();
-
-  // 2. instant refresh UI (без reload)
-  const me = await getMe();
-  const world = await getWorld();
-
-  render(me, world);
-
-  // 3. AI effect
   const msgs = [
     "SYSTEM: anomaly detected",
     "SYSTEM: AEY signal unstable",
@@ -179,23 +69,10 @@ document.getElementById("find").onclick = async () => {
 
   document.getElementById("ai").innerText =
     msgs[Math.floor(Math.random() * msgs.length)];
-};
+}
 
-/* =========================
-   9. AI LOOP
-========================= */
-setInterval(() => {
-  const msgs = [
-    "SYSTEM: scanning neural pattern",
-    "SYSTEM: quantum sync active",
-    "SYSTEM: AEY node responding",
-    "SYSTEM: anomaly stable"
-  ];
-
-  document.getElementById("ai").innerText =
-    msgs[Math.floor(Math.random() * msgs.length)];
-}, 4000);
-
+setInterval(update, 3000);
+update();
 </script>
 
 </body>
