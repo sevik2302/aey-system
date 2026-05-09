@@ -46,3 +46,70 @@ body{
   background:white;
   color:black;
 }
+/* =========================
+   PAGE TRANSITION SYSTEM
+========================= */
+
+body {
+  background: #000;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* слой затемнения */
+.fade-layer {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+  z-index: 9999;
+}
+
+/* активное затемнение */
+.fade-layer.active {
+  opacity: 1;
+}
+
+/* =========================
+   SMOOTH CONTENT APPEAR
+========================= */
+
+.container {
+  animation: fadeInUp 0.8s ease both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* =========================
+   BUTTON ANIMATION
+========================= */
+
+.btn {
+  transition: all 0.25s ease;
+}
+
+.btn:hover {
+  transform: scale(1.03);
+  letter-spacing: 2px;
+}
+
+/* =========================
+   SUBTLE SCROLL EFFECT
+========================= */
+
+body {
+  scroll-behavior: smooth;
+}
