@@ -3,31 +3,30 @@
 <head>
   <title>SCAN</title>
   <link rel="stylesheet" href="style.css">
-
-  <!-- 🟢 ДОБАВЛЕНО -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-<div class="bg"></div>
+<div class="fade-layer" id="fade"></div>
 
 <div class="container">
   <div class="small">SCANNING</div>
   <div class="title" id="p">0%</div>
 
-  <a href="game.html">
-    <div class="btn">FORCE ENTRY</div>
-  </a>
+  <a href="game.html" class="btn">FORCE ENTRY</a>
 </div>
 
-<script src="config.js"></script>
-<script src="supabase.js"></script>
-<script src="game.js"></script>
-
 <script>
-setTimeout(() => {
-  window.AEY.init(); // 🟡 БЕЗ ИЗМЕНЕНИЙ, просто теперь работает
-}, 1000);
+function go(url) {
+  document.getElementById("fade").classList.add("active");
+  setTimeout(() => window.location.href = url, 500);
+}
+
+document.querySelectorAll("a").forEach(a => {
+  a.addEventListener("click", e => {
+    e.preventDefault();
+    go(a.href);
+  });
+});
 
 let i = 0;
 setInterval(() => {
