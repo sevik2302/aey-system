@@ -1,18 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AEY SYSTEM</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+<div class="bg"></div>
+
+<div class="container">
+  <div class="small">SYSTEM ACTIVE</div>
+  <div class="title">PHASE 0</div>
+
+  <div id="me"></div>
+  <div id="world"></div>
+  <div id="ai"></div>
+
+  <div class="btn" id="find">FIND SIGNAL</div>
+
+  <a href="claim.html">
+    <div class="btn">CLAIM</div>
+  </a>
+</div>
+
+<!-- CONFIG -->
+<script src="config.js"></script>
+<script src="supabase.js"></script>
+<script src="game.js"></script>
+
 <script>
-let AEY_READY = false;
+let READY = false;
 
-/* init */
-setTimeout(async () => {
-  AEY_READY = true;
-  await window.AEY.init();
+/* =========================
+   SAFE START (NO WHITE SCREEN)
+========================= */
+async function start() {
+  try {
+    await window.AEY.boot();
 
-  /* 🔥 ВКЛЮЧАЕМ REALTIME */
-  window.AEY.enableRealtime(update);
-}, 800);
+    READY = true;
 
-/* CLICK */
+    window.AEY.enableRealtime(update);
+
+    update();
+
+  } catch (e) {
+    console.log("BOOT ERROR:", e);
+  }
+}
+
+/* =========================
+   CLICK
+========================= */
 document.getElementById("find").onclick = async () => {
-  if (!AEY_READY) return;
+  if (!READY) return;
 
   const f = await window.AEY.addFragment();
 
@@ -25,9 +70,11 @@ document.getElementById("find").onclick = async () => {
   update();
 };
 
-/* 🔥 UI UPDATE */
+/* =========================
+   UI UPDATE
+========================= */
 async function update() {
-  if (!AEY_READY) return;
+  if (!READY) return;
 
   const me = await window.AEY.getMe();
   const world = await window.AEY.getWorld();
@@ -49,5 +96,11 @@ async function update() {
     msgs[Math.floor(Math.random() * msgs.length)];
 }
 
-update();
+/* =========================
+   BOOT GAME
+========================= */
+start();
 </script>
+
+</body>
+</html>
