@@ -4,7 +4,7 @@
   <title>AEY SYSTEM</title>
   <link rel="stylesheet" href="style.css">
 
-  <!-- Supabase SDK -->
+  <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
@@ -20,39 +20,33 @@
   <div id="world">players: 0</div>
   <div id="ai"></div>
 
-  <!-- ✅ ВАЖНО: теперь это button -->
   <button class="btn" id="find">FIND SIGNAL</button>
-
-  <a href="claim.html">
-    <div class="btn">CLAIM</div>
-  </a>
+  <a href="claim.html"><div class="btn">CLAIM</div></a>
 </div>
 
 <script src="config.js"></script>
 <script src="supabase.js"></script>
-<script src="game.js"></script>
 
 <script>
 /* =========================
-   SUPABASE INIT
+   1. SAFETY CHECK
 ========================= */
 
-let client = null;
-
-function initSupabase() {
-  try {
-    client = supabase.createClient(
-      window.SUPABASE_URL,
-      window.SUPABASE_KEY
-    );
-    console.log("Supabase connected");
-  } catch (e) {
-    console.error("Supabase init error:", e);
-  }
+if (!window.supabase) {
+  alert("Supabase SDK not loaded");
 }
 
 /* =========================
-   PLAYER ID
+   2. CLIENT INIT (ЖЁСТКО)
+========================= */
+
+const client = window.supabase.createClient(
+  window.SUPABASE_URL,
+  window.SUPABASE_KEY
+);
+
+/* =========================
+   3. PLAYER ID
 ========================= */
 
 let id = localStorage.getItem("aey_id");
@@ -63,12 +57,10 @@ if (!id) {
 }
 
 /* =========================
-   INIT PLAYER
+   4. INIT PLAYER
 ========================= */
 
-async function initPlayer() {
-  if (!client) return;
-
+async function init() {
   await client.from("players").upsert({
     id,
     fragments: 0,
@@ -76,8 +68,10 @@ async function initPlayer() {
   });
 }
 
+init();
+
 /* =========================
-   GAME LOGIC
+   5. CORE
 ========================= */
 
 async function addFragment() {
@@ -87,7 +81,7 @@ async function addFragment() {
     .eq("id", id)
     .single();
 
-  let f = (data?.fragments || 0) + 1;
+  const f = (data?.fragments || 0) + 1;
 
   await client
     .from("players")
@@ -116,7 +110,7 @@ async function getWorld() {
 }
 
 /* =========================
-   RENDER
+   6. UI RENDER
 ========================= */
 
 function render(me, world) {
@@ -128,19 +122,10 @@ function render(me, world) {
 }
 
 /* =========================
-   START
-========================= */
-
-initSupabase();
-initPlayer();
-
-/* =========================
-   LIVE LOOP (без лагов)
+   7. LIVE LOOP
 ========================= */
 
 async function loop() {
-  if (!client) return;
-
   const me = await getMe();
   const world = await getWorld();
 
@@ -151,12 +136,11 @@ setInterval(loop, 2000);
 loop();
 
 /* =========================
-   BUTTON FIX
+   8. BUTTON FIX
 ========================= */
 
-document.getElementById("find").addEventListener("click", async () => {
+document.getElementById("find").onclick = async () => {
   const f = await addFragment();
-
   const me = await getMe();
   const world = await getWorld();
 
@@ -165,13 +149,13 @@ document.getElementById("find").addEventListener("click", async () => {
   const msgs = [
     "SYSTEM: anomaly detected",
     "SYSTEM: AEY signal unstable",
-    "SYSTEM: pattern sync",
-    "SYSTEM: phase unlocked"
+    "SYSTEM: pattern match",
+    "SYSTEM: phase shifting"
   ];
 
   document.getElementById("ai").innerText =
     msgs[Math.floor(Math.random() * msgs.length)];
-});
+};
 
 </script>
 
