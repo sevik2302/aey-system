@@ -3,8 +3,6 @@
 <head>
   <title>AEY SYSTEM</title>
   <link rel="stylesheet" href="style.css">
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -24,64 +22,55 @@
 </div>
 
 <script src="config.js"></script>
-<script src="supabase.js"></script>
-<script src="game.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 /* =========================
-   1. STATE (БЕЗ AEY_READY)
+   1. SAFE INIT (ВАЖНО)
 ========================= */
 
-let sb = null;
-let id = localStorage.getItem("aey_id");
+let client = null;
 
+try {
+  client = supabase.createClient(
+    window.SUPABASE_URL,
+    window.SUPABASE_KEY
+  );
+  console.log("Supabase OK");
+} catch (e) {
+  console.error("Supabase ERROR:", e);
+}
+
+/* =========================
+   2. PLAYER ID
+========================= */
+
+let id = localStorage.getItem("aey_id");
 if (!id) {
   id = "u_" + Math.random().toString(36).slice(2, 10);
   localStorage.setItem("aey_id", id);
 }
 
 /* =========================
-   2. INIT (СРАЗУ)
+   3. INIT PLAYER
 ========================= */
 
-function initSupabase() {
-  if (!window.supabase) {
-    console.error("Supabase SDK not loaded");
-    return;
-  }
+async function init() {
+  if (!client) return;
 
-  sb = window.supabase.createClient(
-    window.SUPABASE_URL,
-    window.SUPABASE_KEY
-  );
-
-  console.log("Supabase ready");
-}
-
-initSupabase();
-
-/* =========================
-   3. INIT PLAYER (СРАЗУ)
-========================= */
-
-async function initPlayer() {
-  if (!sb) return;
-
-  await sb.from("players").upsert({
+  await client.from("players").upsert({
     id,
     fragments: 0,
     phase: 0
   });
 }
 
-initPlayer();
-
 /* =========================
-   4. CORE FUNCTIONS
+   4. CORE
 ========================= */
 
 async function addFragment() {
-  const { data } = await sb
+  const { data } = await client
     .from("players")
     .select("*")
     .eq("id", id)
@@ -89,7 +78,7 @@ async function addFragment() {
 
   let f = (data?.fragments || 0) + 1;
 
-  await sb
+  await client
     .from("players")
     .update({ fragments: f })
     .eq("id", id);
@@ -98,7 +87,7 @@ async function addFragment() {
 }
 
 async function getMe() {
-  const { data } = await sb
+  const { data } = await client
     .from("players")
     .select("*")
     .eq("id", id)
@@ -108,7 +97,7 @@ async function getMe() {
 }
 
 async function getWorld() {
-  const { data } = await sb
+  const { data } = await client
     .from("players")
     .select("*");
 
@@ -116,7 +105,7 @@ async function getWorld() {
 }
 
 /* =========================
-   5. RENDER
+   5. UI SAFE INIT
 ========================= */
 
 function render(me, world) {
@@ -128,11 +117,13 @@ function render(me, world) {
 }
 
 /* =========================
-   6. LIVE SYNC (БЕЗ ЗАДЕРЖЕК)
+   6. START
 ========================= */
 
-async function refresh() {
-  if (!sb) return;
+init();
+
+async function loop() {
+  if (!client) return;
 
   const me = await getMe();
   const world = await getWorld();
@@ -140,46 +131,39 @@ async function refresh() {
   render(me, world);
 }
 
-setInterval(refresh, 2000);
-refresh();
+setInterval(loop, 2500);
+loop();
 
 /* =========================
-   7. FIND SIGNAL (100% РАБОТАЕТ)
+   7. BUTTON FIX (ГЛАВНОЕ)
 ========================= */
 
-document.getElementById("find").onclick = async () => {
-  const f = await addFragment();
-  const me = await getMe();
-  const world = await getWorld();
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("find");
 
-  render(me, world);
+  if (!btn) {
+    console.error("FIND BUTTON NOT FOUND");
+    return;
+  }
 
-  const msgs = [
-    "SYSTEM: anomaly detected",
-    "SYSTEM: AEY signal unstable",
-    "SYSTEM: user pattern matched",
-    "SYSTEM: phase pending"
-  ];
+  btn.onclick = async () => {
+    const f = await addFragment();
+    const me = await getMe();
+    const world = await getWorld();
 
-  document.getElementById("ai").innerText =
-    msgs[Math.floor(Math.random() * msgs.length)];
-};
+    render(me, world);
 
-/* =========================
-   8. AI LOOP
-========================= */
+    const msgs = [
+      "SYSTEM: anomaly detected",
+      "SYSTEM: AEY signal unstable",
+      "SYSTEM: pattern locked",
+      "SYSTEM: phase shifting"
+    ];
 
-setInterval(() => {
-  const msgs = [
-    "SYSTEM: scanning neural pattern",
-    "SYSTEM: quantum sync active",
-    "SYSTEM: AEY node responding",
-    "SYSTEM: anomaly stable"
-  ];
-
-  document.getElementById("ai").innerText =
-    msgs[Math.floor(Math.random() * msgs.length)];
-}, 4000);
+    document.getElementById("ai").innerText =
+      msgs[Math.floor(Math.random() * msgs.length)];
+  };
+});
 
 </script>
 
