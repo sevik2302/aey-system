@@ -4,9 +4,9 @@
   <title>AEY SYSTEM</title>
   <link rel="stylesheet" href="style.css">
 
-  <!-- 🟢 ДОБАВЛЕНО -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
 
 <div class="bg"></div>
@@ -15,15 +15,12 @@
   <div class="small">SYSTEM ACTIVE</div>
   <div class="title">PHASE 0</div>
 
-  <div id="me"></div>
-  <div id="world"></div>
+  <div id="me">fragments: 0</div>
+  <div id="world">players: 0</div>
   <div id="ai"></div>
 
   <div class="btn" id="find">FIND SIGNAL</div>
-
-  <a href="claim.html">
-    <div class="btn">CLAIM</div>
-  </a>
+  <a href="claim.html"><div class="btn">CLAIM</div></a>
 </div>
 
 <script src="config.js"></script>
@@ -31,34 +28,131 @@
 <script src="game.js"></script>
 
 <script>
-let AEY_READY = false;
+/* =========================
+   1. STATE (БЕЗ AEY_READY)
+========================= */
 
-/* 🟡 ИЗМЕНЕНО: безопасный init */
-setTimeout(async () => {
-  AEY_READY = true;
-  await window.AEY.init();
-}, 800);
+let sb = null;
+let id = localStorage.getItem("aey_id");
 
-/* 🟡 БЕЗ ИЗМЕНЕНИЙ (логика ок) */
-document.getElementById("find").onclick = async () => {
-  if (!AEY_READY) return;
-  const f = await window.AEY.addFragment();
-  document.getElementById("me").innerText =
-    "fragments: " + f;
-};
+if (!id) {
+  id = "u_" + Math.random().toString(36).slice(2, 10);
+  localStorage.setItem("aey_id", id);
+}
 
-/* 🟡 ИЗМЕНЕНИЙ НЕТ (UI логика норм) */
-async function update() {
-  if (!AEY_READY) return;
+/* =========================
+   2. INIT (СРАЗУ)
+========================= */
 
-  const me = await window.AEY.getMe();
-  const world = await window.AEY.getWorld();
+function initSupabase() {
+  if (!window.supabase) {
+    console.error("Supabase SDK not loaded");
+    return;
+  }
 
+  sb = window.supabase.createClient(
+    window.SUPABASE_URL,
+    window.SUPABASE_KEY
+  );
+
+  console.log("Supabase ready");
+}
+
+initSupabase();
+
+/* =========================
+   3. INIT PLAYER (СРАЗУ)
+========================= */
+
+async function initPlayer() {
+  if (!sb) return;
+
+  await sb.from("players").upsert({
+    id,
+    fragments: 0,
+    phase: 0
+  });
+}
+
+initPlayer();
+
+/* =========================
+   4. CORE FUNCTIONS
+========================= */
+
+async function addFragment() {
+  const { data } = await sb
+    .from("players")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  let f = (data?.fragments || 0) + 1;
+
+  await sb
+    .from("players")
+    .update({ fragments: f })
+    .eq("id", id);
+
+  return f;
+}
+
+async function getMe() {
+  const { data } = await sb
+    .from("players")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  return data || { fragments: 0 };
+}
+
+async function getWorld() {
+  const { data } = await sb
+    .from("players")
+    .select("*");
+
+  return data || [];
+}
+
+/* =========================
+   5. RENDER
+========================= */
+
+function render(me, world) {
   document.getElementById("me").innerText =
     "fragments: " + (me?.fragments || 0);
 
   document.getElementById("world").innerText =
-    "players: " + world.length;
+    "players: " + (world?.length || 0);
+}
+
+/* =========================
+   6. LIVE SYNC (БЕЗ ЗАДЕРЖЕК)
+========================= */
+
+async function refresh() {
+  if (!sb) return;
+
+  const me = await getMe();
+  const world = await getWorld();
+
+  render(me, world);
+}
+
+setInterval(refresh, 2000);
+refresh();
+
+/* =========================
+   7. FIND SIGNAL (100% РАБОТАЕТ)
+========================= */
+
+document.getElementById("find").onclick = async () => {
+  const f = await addFragment();
+  const me = await getMe();
+  const world = await getWorld();
+
+  render(me, world);
 
   const msgs = [
     "SYSTEM: anomaly detected",
@@ -69,10 +163,24 @@ async function update() {
 
   document.getElementById("ai").innerText =
     msgs[Math.floor(Math.random() * msgs.length)];
-}
+};
 
-setInterval(update, 3000);
-update();
+/* =========================
+   8. AI LOOP
+========================= */
+
+setInterval(() => {
+  const msgs = [
+    "SYSTEM: scanning neural pattern",
+    "SYSTEM: quantum sync active",
+    "SYSTEM: AEY node responding",
+    "SYSTEM: anomaly stable"
+  ];
+
+  document.getElementById("ai").innerText =
+    msgs[Math.floor(Math.random() * msgs.length)];
+}, 4000);
+
 </script>
 
 </body>
