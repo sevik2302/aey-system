@@ -1,90 +1,43 @@
-body{
-  margin:0;
-  background:#050505;
-  color:white;
-  font-family:'Space Grotesk',sans-serif;
-  overflow:hidden;
-}
-
-.bg{
-  position:fixed;
-  inset:0;
-  background:radial-gradient(circle at center, rgba(255,255,255,0.05), transparent 60%);
-}
-
-.container{
-  position:relative;
-  z-index:2;
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-}
-
-.title{
-  font-size:clamp(60px,10vw,140px);
-  letter-spacing:18px;
-}
-
-.small{
-  opacity:0.3;
-  font-size:11px;
-  letter-spacing:5px;
-}
-
-.btn{
-  margin-top:25px;
-  padding:14px 28px;
-  border:1px solid rgba(255,255,255,0.2);
-  cursor:pointer;
-  transition:0.3s;
-}
-
-.btn:hover{
-  background:white;
-  color:black;
-}
-/* =========================
-   PAGE TRANSITION SYSTEM
-========================= */
-
 body {
+  margin: 0;
   background: #000;
   color: #fff;
+  font-family: Arial, sans-serif;
   overflow-x: hidden;
 }
 
-/* слой затемнения */
+/* затемнение при переходах */
 .fade-layer {
   position: fixed;
   inset: 0;
   background: #000;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.6s ease;
+  transition: opacity 0.5s ease;
   z-index: 9999;
 }
 
-/* активное затемнение */
 .fade-layer.active {
   opacity: 1;
 }
 
-/* =========================
-   SMOOTH CONTENT APPEAR
-========================= */
-
+/* центрирование */
 .container {
-  animation: fadeInUp 0.8s ease both;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  animation: appear 0.7s ease both;
 }
 
-@keyframes fadeInUp {
+/* появление страницы */
+@keyframes appear {
   from {
     opacity: 0;
-    transform: translateY(12px);
-    filter: blur(8px);
+    transform: translateY(10px);
+    filter: blur(10px);
   }
   to {
     opacity: 1;
@@ -93,23 +46,27 @@ body {
   }
 }
 
-/* =========================
-   BUTTON ANIMATION
-========================= */
+.title {
+  font-size: 60px;
+  letter-spacing: 10px;
+}
+
+.small {
+  opacity: 0.5;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
 
 .btn {
-  transition: all 0.25s ease;
+  margin-top: 20px;
+  padding: 12px 24px;
+  border: 1px solid #fff;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
 .btn:hover {
-  transform: scale(1.03);
-  letter-spacing: 2px;
-}
-
-/* =========================
-   SUBTLE SCROLL EFFECT
-========================= */
-
-body {
-  scroll-behavior: smooth;
+  transform: scale(1.05);
+  background: #fff;
+  color: #000;
 }
