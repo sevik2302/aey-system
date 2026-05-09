@@ -6,6 +6,7 @@ if (!id) {
   localStorage.setItem("aey_id", id);
 }
 
+/* 🟢 SAFE INIT SUPABASE */
 function initSupabase() {
   if (window.SUPABASE_URL && window.SUPABASE_KEY && window.supabase) {
     sb = window.supabase.createClient(
@@ -15,57 +16,81 @@ function initSupabase() {
   }
 }
 
+/* 🟢 INIT PLAYER (без изменений логики, только защита) */
 async function init() {
   if (!sb) return;
 
-  await sb.from("players").upsert({
-    id,
-    fragments: 0,
-    phase: 0
-  });
+  try {
+    await sb.from("players").upsert({
+      id,
+      fragments: 0,
+      phase: 0
+    });
+  } catch (e) {
+    console.log("init error:", e);
+  }
 }
 
+/* 🟡 MAIN ACTION (добавление фрагмента) */
 async function addFragment() {
   if (!sb) return 0;
 
-  let { data } = await sb
-    .from("players")
-    .select("*")
-    .eq("id", id)
-    .single();
+  try {
+    let { data, error } = await sb
+      .from("players")
+      .select("fragments")
+      .eq("id", id)
+      .single();
 
-  let f = (data?.fragments || 0) + 1;
+    if (error) console.log(error);
 
-  await sb.from("players")
-    .update({ fragments: f })
-    .eq("id", id);
+    let f = (data?.fragments || 0) + 1;
 
-  return f;
+    await sb.from("players")
+      .update({ fragments: f })
+      .eq("id", id);
+
+    return f;
+
+  } catch (e) {
+    console.log("addFragment error:", e);
+    return 0;
+  }
 }
 
+/* 🟢 SAFE GET PLAYER */
 async function getMe() {
   if (!sb) return { fragments: 0 };
 
-  let { data } = await sb
-    .from("players")
-    .select("*")
-    .eq("id", id)
-    .single();
+  try {
+    let { data } = await sb
+      .from("players")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-  return data || { fragments: 0 };
+    return data || { fragments: 0 };
+
+  } catch (e) {
+    console.log("getMe error:", e);
+    return { fragments: 0 };
+  }
 }
 
+/* 🟢 WORLD STATE */
 async function getWorld() {
   if (!sb) return [];
 
-  let { data } = await sb
-    .from("players")
-    .select("*");
-
-  return data || [];
+  try {
+    let { data } = await sb.from("players").select("*");
+    return data || [];
+  } catch (e) {
+    console.log("getWorld error:", e);
+    return [];
+  }
 }
 
-// expose global API
+/* 🔥 PUBLIC API (НЕ МЕНЯЛАСЬ — ВАЖНО ДЛЯ ТВОЕГО HTML) */
 window.AEY = {
   init,
   addFragment,
@@ -73,5 +98,8 @@ window.AEY = {
   getWorld
 };
 
-// init supabase safely
-setTimeout(initSupabase, 500);
+/* 🟢 SAFE BOOT */
+setTimeout(() => {
+  initSupabase();
+  init();
+}, 500);
