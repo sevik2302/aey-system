@@ -1,46 +1,59 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&display=swap');
-
-*{
-  box-sizing:border-box;
-}
-
-html{
-  overflow:hidden;
-}
-
 body{
   margin:0;
-  background:#030303;
+  background:#050505;
   color:white;
-  font-family:'Space Grotesk',sans-serif;
+  font-family:Arial,sans-serif;
   overflow:hidden;
-  height:100vh;
 }
 
-/* ===== BACKGROUND ===== */
+/* =========================
+   BACKGROUND
+========================= */
 
 .bg{
   position:fixed;
   inset:0;
   background:
     radial-gradient(circle at center,
-    rgba(255,255,255,0.04),
+    rgba(255,255,255,0.03),
     transparent 60%);
-  z-index:0;
 }
 
-/* ===== STAR CANVAS ===== */
+/* =========================
+   PARTICLES CANVAS
+========================= */
 
 #stars{
   position:fixed;
   inset:0;
   width:100%;
   height:100%;
-  z-index:1;
-  opacity:.9;
+  z-index:0;
+  opacity:0.9;
 }
 
-/* ===== PAGE ===== */
+/* =========================
+   PAGE FADE
+========================= */
+
+body{
+  animation:fadeIn 1.2s ease;
+}
+
+@keyframes fadeIn{
+  from{
+    opacity:0;
+    filter:blur(10px);
+  }
+  to{
+    opacity:1;
+    filter:blur(0px);
+  }
+}
+
+/* =========================
+   UI
+========================= */
 
 .container{
   position:relative;
@@ -50,120 +63,106 @@ body{
 
   display:flex;
   flex-direction:column;
+
   justify-content:center;
   align-items:center;
 
   text-align:center;
-
-  animation:fadeIn 1.2s ease;
 }
 
 .title{
-  font-size:clamp(58px,10vw,140px);
-  letter-spacing:18px;
-  font-weight:700;
+  font-size:clamp(60px,10vw,140px);
 
-  animation:glow 4s infinite alternate;
+  letter-spacing:18px;
+
+  opacity:0;
+
+  animation:titleIn 1.5s ease forwards;
+}
+
+@keyframes titleIn{
+
+  from{
+    opacity:0;
+    transform:translateY(30px);
+    letter-spacing:40px;
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0px);
+    letter-spacing:18px;
+  }
+
 }
 
 .small{
-  opacity:.45;
+  opacity:0.35;
   font-size:11px;
   letter-spacing:5px;
-  margin-bottom:8px;
+
+  margin-bottom:10px;
 }
 
-#me,
-#world,
-#ai{
-  margin-top:14px;
-  opacity:.85;
-  transition:.3s;
-}
+/* =========================
+   BUTTONS
+========================= */
 
 .btn{
-  margin-top:24px;
 
-  padding:14px 34px;
+  margin-top:22px;
 
-  border:1px solid rgba(255,255,255,0.18);
+  padding:14px 30px;
 
-  background:rgba(255,255,255,0.03);
-
-  backdrop-filter:blur(6px);
-
-  color:white;
+  border:1px solid rgba(255,255,255,0.15);
 
   cursor:pointer;
 
   transition:
-    transform .25s ease,
-    background .25s ease,
-    border .25s ease,
-    opacity .25s ease;
+    0.35s,
+    transform 0.25s;
+
+  backdrop-filter:blur(10px);
+
+  background:rgba(255,255,255,0.03);
 
   user-select:none;
 }
 
 .btn:hover{
-  transform:translateY(-2px);
 
   background:white;
   color:black;
 
-  border-color:white;
+  transform:translateY(-2px);
+
+  box-shadow:
+    0 0 30px rgba(255,255,255,0.2);
+
 }
+
+/* =========================
+   INFO TEXT
+========================= */
+
+#me,
+#world,
+#ai{
+
+  margin-top:12px;
+
+  opacity:0.75;
+
+  letter-spacing:2px;
+
+  transition:0.3s;
+}
+
+/* =========================
+   LINKS
+========================= */
 
 a{
   text-decoration:none;
-  color:inherit;
-}
-
-/* ===== PAGE TRANSITION ===== */
-
-body::after{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:black;
-  pointer-events:none;
-  opacity:0;
-  animation:pageReveal 1s ease forwards;
-  z-index:999;
-}
-
-/* ===== ANIMATIONS ===== */
-
-@keyframes glow{
-  from{
-    text-shadow:0 0 10px rgba(255,255,255,.08);
-  }
-
-  to{
-    text-shadow:
-      0 0 18px rgba(255,255,255,.18),
-      0 0 40px rgba(255,255,255,.08);
-  }
-}
-
-@keyframes fadeIn{
-  from{
-    opacity:0;
-    transform:translateY(8px);
-  }
-
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
-}
-
-@keyframes pageReveal{
-  from{
-    opacity:1;
-  }
-
-  to{
-    opacity:0;
-  }
+  color:white;
 }
