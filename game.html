@@ -1,28 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
+
   <title>AEY SYSTEM</title>
 
   <link rel="stylesheet" href="style.css">
 
-  <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 </head>
 
 <body>
 
-<!-- BACKGROUND -->
 <div class="bg"></div>
 
-<!-- STARS -->
 <canvas id="stars"></canvas>
 
-<!-- UI -->
+<div class="fade-layer" id="fade"></div>
+
 <div class="container">
 
-  <div class="small">SYSTEM ACTIVE</div>
+  <div class="small">
+    SYSTEM ACTIVE
+  </div>
 
-  <div class="title">PHASE 0</div>
+  <div class="title">
+    PHASE 0
+  </div>
 
   <div id="me"></div>
 
@@ -34,29 +38,23 @@
     FIND SIGNAL
   </div>
 
-  <a href="claim.html">
-    <div class="btn">
-      CLAIM
-    </div>
+  <a href="claim.html" class="btn">
+    CLAIM
   </a>
 
 </div>
 
-<!-- CONFIG -->
 <script src="config.js"></script>
 <script src="supabase.js"></script>
 <script src="game.js"></script>
 
 <script>
+
 let READY = false;
 
-/* =========================
-   SAFE START
-========================= */
+async function start(){
 
-async function start() {
-
-  try {
+  try{
 
     await window.AEY.boot();
 
@@ -66,188 +64,83 @@ async function start() {
 
     update();
 
-  } catch (e) {
+  }catch(e){
 
-    console.log("BOOT ERROR:", e);
+    console.log(e);
 
   }
 
 }
 
-/* =========================
-   CLICK
-========================= */
+document.getElementById("find")
+.onclick = async ()=>{
 
-document.getElementById("find").onclick = async () => {
+  if(!READY) return;
 
-  if (!READY) return;
+  const f =
+    await window.AEY.addFragment();
 
-  const f = await window.AEY.addFragment();
+  if(f === "cooldown"){
 
-  if (f === "cooldown") {
-
-    document.getElementById("ai").innerText =
+    document.getElementById("ai")
+      .innerText =
       "SYSTEM: cooldown active";
 
     return;
+
   }
 
   update();
 
 };
 
-/* =========================
-   UPDATE UI
-========================= */
+async function update(){
 
-async function update() {
+  if(!READY) return;
 
-  if (!READY) return;
+  const me =
+    await window.AEY.getMe();
 
-  const me = await window.AEY.getMe();
+  const world =
+    await window.AEY.getWorld();
 
-  const world = await window.AEY.getWorld();
+  document.getElementById("me")
+    .innerText =
+    "fragments: " +
+    (me?.fragments || 0);
 
-  document.getElementById("me").innerText =
-    "fragments: " + (me?.fragments || 0);
-
-  document.getElementById("world").innerText =
-    "players: " + world.length;
+  document.getElementById("world")
+    .innerText =
+    "players: " +
+    world.length;
 
   const msgs = [
+
     "SYSTEM: anomaly detected",
+
     "SYSTEM: AEY signal unstable",
+
     "SYSTEM: user pattern matched",
+
     "SYSTEM: phase pending"
+
   ];
 
-  document.getElementById("ai").innerText =
-    msgs[Math.floor(Math.random() * msgs.length)];
+  document.getElementById("ai")
+    .innerText =
+    msgs[
+      Math.floor(
+        Math.random()*msgs.length
+      )
+    ];
 
 }
-
-/* =========================
-   STARS SYSTEM
-========================= */
-
-const canvas = document.getElementById("stars");
-const ctx = canvas.getContext("2d");
-
-let stars = [];
-
-function resize() {
-
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-}
-
-window.addEventListener("resize", resize);
-
-resize();
-
-function createStars(count = 80) {
-
-  stars = [];
-
-  for (let i = 0; i < count; i++) {
-
-    stars.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 2,
-      vx: (Math.random() - 0.5) * 0.3,
-      vy: (Math.random() - 0.5) * 0.3
-    });
-
-  }
-
-}
-
-createStars();
-
-/* CLICK CONSTELLATION */
-
-window.addEventListener("click", e => {
-
-  for (let i = 0; i < 10; i++) {
-
-    stars.push({
-      x: e.clientX,
-      y: e.clientY,
-      r: Math.random() * 2.2,
-      vx: (Math.random() - 0.5) * 1.5,
-      vy: (Math.random() - 0.5) * 1.5
-    });
-
-  }
-
-});
-
-/* DRAW */
-
-function animate() {
-
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  for (let i = 0; i < stars.length; i++) {
-
-    let s = stars[i];
-
-    s.x += s.vx;
-    s.y += s.vy;
-
-    if (s.x < 0 || s.x > canvas.width) s.vx *= -1;
-    if (s.y < 0 || s.y > canvas.height) s.vy *= -1;
-
-    ctx.beginPath();
-
-    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-
-    ctx.fillStyle = "rgba(255,255,255,.9)";
-
-    ctx.fill();
-
-    for (let j = i + 1; j < stars.length; j++) {
-
-      let s2 = stars[j];
-
-      let dx = s.x - s2.x;
-      let dy = s.y - s2.y;
-
-      let dist = Math.sqrt(dx*dx + dy*dy);
-
-      if (dist < 120) {
-
-        ctx.beginPath();
-
-        ctx.moveTo(s.x, s.y);
-
-        ctx.lineTo(s2.x, s2.y);
-
-        ctx.strokeStyle =
-          "rgba(255,255,255," + (1 - dist/120) * 0.12 + ")";
-
-        ctx.stroke();
-
-      }
-
-    }
-
-  }
-
-  requestAnimationFrame(animate);
-
-}
-
-animate();
-
-/* =========================
-   BOOT
-========================= */
 
 start();
+
 </script>
+
+<script src="stars.js"></script>
 
 </body>
 </html>
