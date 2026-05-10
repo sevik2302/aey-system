@@ -1,72 +1,169 @@
-body {
-  margin: 0;
-  background: #000;
-  color: #fff;
-  font-family: Arial, sans-serif;
-  overflow-x: hidden;
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&display=swap');
+
+*{
+  box-sizing:border-box;
 }
 
-/* затемнение при переходах */
-.fade-layer {
-  position: fixed;
-  inset: 0;
-  background: #000;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
-  z-index: 9999;
+html{
+  overflow:hidden;
 }
 
-.fade-layer.active {
-  opacity: 1;
+body{
+  margin:0;
+  background:#030303;
+  color:white;
+  font-family:'Space Grotesk',sans-serif;
+  overflow:hidden;
+  height:100vh;
 }
 
-/* центрирование */
-.container {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  animation: appear 0.7s ease both;
+/* ===== BACKGROUND ===== */
+
+.bg{
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(circle at center,
+    rgba(255,255,255,0.04),
+    transparent 60%);
+  z-index:0;
 }
 
-/* появление страницы */
-@keyframes appear {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-    filter: blur(10px);
+/* ===== STAR CANVAS ===== */
+
+#stars{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:1;
+  opacity:.9;
+}
+
+/* ===== PAGE ===== */
+
+.container{
+  position:relative;
+  z-index:2;
+
+  height:100vh;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+
+  text-align:center;
+
+  animation:fadeIn 1.2s ease;
+}
+
+.title{
+  font-size:clamp(58px,10vw,140px);
+  letter-spacing:18px;
+  font-weight:700;
+
+  animation:glow 4s infinite alternate;
+}
+
+.small{
+  opacity:.45;
+  font-size:11px;
+  letter-spacing:5px;
+  margin-bottom:8px;
+}
+
+#me,
+#world,
+#ai{
+  margin-top:14px;
+  opacity:.85;
+  transition:.3s;
+}
+
+.btn{
+  margin-top:24px;
+
+  padding:14px 34px;
+
+  border:1px solid rgba(255,255,255,0.18);
+
+  background:rgba(255,255,255,0.03);
+
+  backdrop-filter:blur(6px);
+
+  color:white;
+
+  cursor:pointer;
+
+  transition:
+    transform .25s ease,
+    background .25s ease,
+    border .25s ease,
+    opacity .25s ease;
+
+  user-select:none;
+}
+
+.btn:hover{
+  transform:translateY(-2px);
+
+  background:white;
+  color:black;
+
+  border-color:white;
+}
+
+a{
+  text-decoration:none;
+  color:inherit;
+}
+
+/* ===== PAGE TRANSITION ===== */
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:black;
+  pointer-events:none;
+  opacity:0;
+  animation:pageReveal 1s ease forwards;
+  z-index:999;
+}
+
+/* ===== ANIMATIONS ===== */
+
+@keyframes glow{
+  from{
+    text-shadow:0 0 10px rgba(255,255,255,.08);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
+
+  to{
+    text-shadow:
+      0 0 18px rgba(255,255,255,.18),
+      0 0 40px rgba(255,255,255,.08);
   }
 }
 
-.title {
-  font-size: 60px;
-  letter-spacing: 10px;
+@keyframes fadeIn{
+  from{
+    opacity:0;
+    transform:translateY(8px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
 }
 
-.small {
-  opacity: 0.5;
-  font-size: 12px;
-  margin-bottom: 10px;
-}
+@keyframes pageReveal{
+  from{
+    opacity:1;
+  }
 
-.btn {
-  margin-top: 20px;
-  padding: 12px 24px;
-  border: 1px solid #fff;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.btn:hover {
-  transform: scale(1.05);
-  background: #fff;
-  color: #000;
+  to{
+    opacity:0;
+  }
 }
