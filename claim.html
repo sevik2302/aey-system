@@ -1,37 +1,64 @@
 <!DOCTYPE html>
 <html>
 <head>
+
   <title>CLAIM</title>
+
   <link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
+
+<div class="bg"></div>
+
+<canvas id="stars"></canvas>
 
 <div class="fade-layer" id="fade"></div>
 
 <div class="container">
-  <div class="small">CLAIM SYSTEM</div>
-  <div class="title">WALLET</div>
 
-  <button class="btn" onclick="connect()">CONNECT PHANTOM</button>
+  <div class="small">
+    CLAIM SYSTEM
+  </div>
+
+  <div class="title">
+    WALLET
+  </div>
+
+  <button class="btn" onclick="connect()">
+    CONNECT PHANTOM
+  </button>
+
   <div id="info"></div>
 
-  <button class="btn" onclick="claim()">CLAIM TOKENS</button>
+  <button class="btn" onclick="claim()">
+    CLAIM TOKENS
+  </button>
+
 </div>
 
 <script>
-function go(url) {
-  document.getElementById("fade").classList.add("active");
-  setTimeout(() => window.location.href = url, 500);
+
+function connect(){
+
+  document.getElementById("info")
+    .innerText =
+    "wallet connected (mock)";
+
 }
 
-function connect() {
-  document.getElementById("info").innerText = "wallet connected (mock)";
+function claim(){
+
+  alert(
+    "CLAIM READY\n\n10 AEY"
+  );
+
 }
 
-function claim() {
-  alert("CLAIM READY (mock version)\nTokens: 10 AEY");
-}
 </script>
+
+<script src="stars.js"></script>
 
 </body>
 </html>
