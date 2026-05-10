@@ -1,34 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
+
   <title>AEY</title>
+
   <link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
+
+<div class="bg"></div>
+
+<canvas id="stars"></canvas>
 
 <div class="fade-layer" id="fade"></div>
 
 <div class="container">
-  <div class="small">TRANSMISSION ACTIVE</div>
-  <div class="title">AEY</div>
-  <div class="small">signal detected</div>
 
-  <a href="scan.html" class="btn">ENTER</a>
+  <div class="small">
+    TRANSMISSION ACTIVE
+  </div>
+
+  <div class="title">
+    AEY
+  </div>
+
+  <div class="small">
+    signal detected
+  </div>
+
+  <a href="scan.html" class="btn">
+    ENTER
+  </a>
+
 </div>
 
 <script>
-function go(url) {
-  document.getElementById("fade").classList.add("active");
-  setTimeout(() => window.location.href = url, 500);
+
+function go(url){
+
+  document.getElementById("fade")
+    .classList.add("active");
+
+  setTimeout(()=>{
+
+    location.href = url;
+
+  },500);
+
 }
 
-document.querySelectorAll("a").forEach(a => {
-  a.addEventListener("click", e => {
+document.querySelectorAll("a")
+.forEach(a=>{
+
+  a.addEventListener("click",e=>{
+
     e.preventDefault();
+
     go(a.href);
+
   });
+
 });
+
 </script>
+
+<script src="stars.js"></script>
 
 </body>
 </html>
