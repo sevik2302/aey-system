@@ -1,41 +1,83 @@
 <!DOCTYPE html>
 <html>
 <head>
+
   <title>SCAN</title>
+
   <link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
+
+<div class="bg"></div>
+
+<canvas id="stars"></canvas>
 
 <div class="fade-layer" id="fade"></div>
 
 <div class="container">
-  <div class="small">SCANNING</div>
-  <div class="title" id="p">0%</div>
 
-  <a href="game.html" class="btn">FORCE ENTRY</a>
+  <div class="small">
+    SCANNING
+  </div>
+
+  <div class="title" id="p">
+    0%
+  </div>
+
+  <a href="game.html" class="btn">
+    FORCE ENTRY
+  </a>
+
 </div>
 
 <script>
-function go(url) {
-  document.getElementById("fade").classList.add("active");
-  setTimeout(() => window.location.href = url, 500);
+
+function go(url){
+
+  document.getElementById("fade")
+    .classList.add("active");
+
+  setTimeout(()=>{
+
+    location.href = url;
+
+  },500);
+
 }
 
-document.querySelectorAll("a").forEach(a => {
-  a.addEventListener("click", e => {
+document.querySelectorAll("a")
+.forEach(a=>{
+
+  a.addEventListener("click",e=>{
+
     e.preventDefault();
+
     go(a.href);
+
   });
+
 });
 
 let i = 0;
-setInterval(() => {
-  if (i < 100) {
+
+setInterval(()=>{
+
+  if(i < 100){
+
     i++;
-    document.getElementById("p").innerText = i + "%";
+
+    document.getElementById("p")
+      .innerText = i + "%";
+
   }
-}, 20);
+
+},20);
+
 </script>
+
+<script src="stars.js"></script>
 
 </body>
 </html>
